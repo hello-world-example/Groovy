@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="监控与邮件示例 本文虽然是使用 Groovy，但是基本上没有用到 Groovy 的任何语法特性，写的过程基本上是先用 Java 写好，然后全部拷贝到 monitor.KaoQin.groovy 文件中。
+涉及到：
+ Grapes 依赖 邮件发送 包管理  获取考勤信息 以下是基本逻辑。
+ 访问登录页，获取登陆表单 登陆，同一个 HttpClient 会保存 Session 信息 访问打卡记录页面，获取表单信息，构造表单参数 获取当天打卡记录 解析打卡信息，判断是否打卡 如果没有打卡，发送邮件提醒  该程序并没有通用性，只针对特定的考勤系统
+package monitor // 添加依赖 @groovy.lang.Grapes([ @groovy.lang.Grab(&#39;org.jsoup:jsoup:1.10.2&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpclient:4.5.3&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpmime:4.5.3&#39;) ]) import mail.Mail import org.apache.http.NameValuePair import org.apache.http.client.entity.UrlEncodedFormEntity import org.apache.http.client.methods.CloseableHttpResponse import org.apache.http.client.methods.HttpGet import org.apache.http.client.methods.HttpPost import org.apache.http.impl.client.CloseableHttpClient import org.apache.http.impl.client.HttpClients import org.apache.http.message.BasicNameValuePair import org.apache.http.util.EntityUtils import org.jsoup.Jsoup import org.jsoup.nodes.Element import org.jsoup.select.Elements import java.nio.charset.Charset /** * 考勤监控， 每周一到到周五，定时检查当天是否有打卡记录 * 25 9 * * MON-FRI * 35 18 * * MON-FRI * * groovy -c utf-8 monitor/KaoQin."><meta property="og:title" content="" />
+<meta property="og:description" content="监控与邮件示例 本文虽然是使用 Groovy，但是基本上没有用到 Groovy 的任何语法特性，写的过程基本上是先用 Java 写好，然后全部拷贝到 monitor.KaoQin.groovy 文件中。
+涉及到：
+ Grapes 依赖 邮件发送 包管理  获取考勤信息 以下是基本逻辑。
+ 访问登录页，获取登陆表单 登陆，同一个 HttpClient 会保存 Session 信息 访问打卡记录页面，获取表单信息，构造表单参数 获取当天打卡记录 解析打卡信息，判断是否打卡 如果没有打卡，发送邮件提醒  该程序并没有通用性，只针对特定的考勤系统
+package monitor // 添加依赖 @groovy.lang.Grapes([ @groovy.lang.Grab(&#39;org.jsoup:jsoup:1.10.2&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpclient:4.5.3&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpmime:4.5.3&#39;) ]) import mail.Mail import org.apache.http.NameValuePair import org.apache.http.client.entity.UrlEncodedFormEntity import org.apache.http.client.methods.CloseableHttpResponse import org.apache.http.client.methods.HttpGet import org.apache.http.client.methods.HttpPost import org.apache.http.impl.client.CloseableHttpClient import org.apache.http.impl.client.HttpClients import org.apache.http.message.BasicNameValuePair import org.apache.http.util.EntityUtils import org.jsoup.Jsoup import org.jsoup.nodes.Element import org.jsoup.select.Elements import java.nio.charset.Charset /** * 考勤监控， 每周一到到周五，定时检查当天是否有打卡记录 * 25 9 * * MON-FRI * 35 18 * * MON-FRI * * groovy -c utf-8 monitor/KaoQin." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hello-world-example.github.io/Groovy/docs/Action/Monitor-KaoQin-Email/" />
+
+<title>Monitor Kao Qin Email | Groovy</title>
+<link rel="icon" href="/Groovy/favicon.png" type="image/x-icon">
+
+
+<link rel="stylesheet" href="/Groovy/book.min.d436f463c9471cfab26a8b71cd2f50b6abf5225806391453da4ca111d1834fef.css" integrity="sha256-1Db0Y8lHHPqyaotxzS9Qtqv1IlgGORRT2kyhEdGDT&#43;8=">
+
+
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body>
+  <input type="checkbox" class="hidden" id="menu-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/Groovy"><span>Groovy</span>
+  </a>
+</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+  <ul>
+<li><strong>Quick Start</strong>
+<ul>
+<li>
+  <a href="/Groovy/docs/Quick-Start/Install/">Install</a></li>
+</ul>
+</li>
+<li><strong>Action</strong>
+<ul>
+<li>
+  <a href="/Groovy/docs/Action/Java-Integrate-Groovy/">Java 整合 Groovy</a></li>
+<li>
+  <a href="/Groovy/docs/Action/Monitor-KaoQin-Email/"class=active>监控与邮件示例</a></li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Groovy/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>Monitor Kao Qin Email</strong>
+
+  <label for="toc-control">
+    <img src="/Groovy/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+  </label>
+</div>
+
+
+  
+    <input type="checkbox" class="hidden" id="toc-control" />
+    <aside class="hidden clearfix">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#监控与邮件示例">监控与邮件示例</a>
+      <ul>
+        <li><a href="#获取考勤信息">获取考勤信息</a></li>
+        <li><a href="#发送邮件">发送邮件</a></li>
+        <li><a href="#运行">运行</a></li>
+        <li><a href="#read-more">Read More</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+    </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="监控与邮件示例">监控与邮件示例</h1>
+<p>本文虽然是使用 Groovy，但是基本上没有用到 Groovy 的任何语法特性，写的过程基本上是先用 Java 写好，然后全部拷贝到 <code>monitor.KaoQin.groovy</code> 文件中。</p>
+<p>涉及到：</p>
+<ul>
+<li>Grapes 依赖</li>
+<li>邮件发送</li>
+<li>包管理</li>
+</ul>
+<h2 id="获取考勤信息">获取考勤信息</h2>
+<p>以下是基本逻辑。</p>
+<ol>
+<li>访问登录页，获取登陆表单</li>
+<li>登陆，同一个 HttpClient 会保存 Session 信息</li>
+<li>访问打卡记录页面，获取表单信息，构造表单参数</li>
+<li>获取当天打卡记录</li>
+<li>解析打卡信息，判断是否打卡</li>
+<li>如果没有打卡，发送邮件提醒</li>
+</ol>
+<p>该程序并没有通用性，只针对特定的考勤系统</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Groovy" data-lang="Groovy"><span style="color:#f92672">package</span> monitor
+
+<span style="color:#75715e">// 添加依赖
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@groovy.lang.Grapes</span><span style="color:#f92672">([</span>
+        <span style="color:#a6e22e">@groovy.lang.Grab</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;org.jsoup:jsoup:1.10.2&#39;</span><span style="color:#f92672">),</span>
+        <span style="color:#a6e22e">@groovy.lang.Grab</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;org.apache.httpcomponents:httpclient:4.5.3&#39;</span><span style="color:#f92672">),</span>
+        <span style="color:#a6e22e">@groovy.lang.Grab</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;org.apache.httpcomponents:httpmime:4.5.3&#39;</span><span style="color:#f92672">)</span>
+<span style="color:#f92672">])</span>
+
+<span style="color:#f92672">import</span> mail.Mail
+
+<span style="color:#f92672">import</span> org.apache.http.NameValuePair
+<span style="color:#f92672">import</span> org.apache.http.client.entity.UrlEncodedFormEntity
+<span style="color:#f92672">import</span> org.apache.http.client.methods.CloseableHttpResponse
+<span style="color:#f92672">import</span> org.apache.http.client.methods.HttpGet
+<span style="color:#f92672">import</span> org.apache.http.client.methods.HttpPost
+<span style="color:#f92672">import</span> org.apache.http.impl.client.CloseableHttpClient
+<span style="color:#f92672">import</span> org.apache.http.impl.client.HttpClients
+<span style="color:#f92672">import</span> org.apache.http.message.BasicNameValuePair
+<span style="color:#f92672">import</span> org.apache.http.util.EntityUtils
+<span style="color:#f92672">import</span> org.jsoup.Jsoup
+<span style="color:#f92672">import</span> org.jsoup.nodes.Element
+<span style="color:#f92672">import</span> org.jsoup.select.Elements
+
+<span style="color:#f92672">import</span> java.nio.charset.Charset
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e"> * 考勤监控， 每周一到到周五，定时检查当天是否有打卡记录
+</span><span style="color:#75715e"> * 25 9 * * MON-FRI
+</span><span style="color:#75715e"> * 35 18 * * MON-FRI
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * groovy -c utf-8 monitor/KaoQin.groovy
+</span><span style="color:#75715e"> */</span>
+
+String HOST <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://考勤地址&#34;</span>
+String USERNAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;****&#34;</span>
+String PASSWORD <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;****&#34;</span>
+
+String URL_LOGIN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;$HOST/Login.aspx&#34;</span>
+String URL_ATTENDANCE_DATA <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;$HOST/StaffSelf/AttendanceData.aspx&#34;</span>
+
+
+CloseableHttpClient httpClient <span style="color:#f92672">=</span> HttpClients<span style="color:#f92672">.</span><span style="color:#a6e22e">createDefault</span><span style="color:#f92672">()</span>
+
+<span style="color:#75715e">/*******************************************************************************
+</span><span style="color:#75715e"> * 获取登陆表单
+</span><span style="color:#75715e"> */</span>
+HttpGet httpGet <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HttpGet<span style="color:#f92672">(</span>URL_LOGIN<span style="color:#f92672">)</span>
+CloseableHttpResponse httpResponse <span style="color:#f92672">=</span> httpClient<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>httpGet<span style="color:#f92672">)</span>
+String initHtml <span style="color:#f92672">=</span> EntityUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">(</span>httpResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">())</span>
+
+Elements inputs <span style="color:#f92672">=</span> Jsoup<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>initHtml<span style="color:#f92672">).</span><span style="color:#a6e22e">select</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;#form1 input&#34;</span><span style="color:#f92672">)</span>
+List<span style="color:#f92672">&lt;</span>NameValuePair<span style="color:#f92672">&gt;</span> loginNameValuePairs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;()</span>
+<span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Element input <span style="color:#f92672">:</span> inputs<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    String name <span style="color:#f92672">=</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">attr</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;txtName&#34;</span> <span style="color:#f92672">==</span> name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        loginNameValuePairs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BasicNameValuePair<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;txtName&#34;</span><span style="color:#f92672">,</span> USERNAME<span style="color:#f92672">))</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;txtPass&#34;</span> <span style="color:#f92672">==</span> name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        loginNameValuePairs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BasicNameValuePair<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;txtPass&#34;</span><span style="color:#f92672">,</span> PASSWORD<span style="color:#f92672">))</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        loginNameValuePairs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BasicNameValuePair<span style="color:#f92672">(</span>name<span style="color:#f92672">,</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">attr</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">)))</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">/*******************************************************************************
+</span><span style="color:#75715e"> * 登陆
+</span><span style="color:#75715e"> */</span>
+HttpPost httpPost <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HttpPost<span style="color:#f92672">(</span>URL_LOGIN<span style="color:#f92672">)</span>
+httpPost<span style="color:#f92672">.</span><span style="color:#a6e22e">setEntity</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> UrlEncodedFormEntity<span style="color:#f92672">(</span>loginNameValuePairs<span style="color:#f92672">,</span> Charset<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;UTF-8&#34;</span><span style="color:#f92672">)))</span>
+httpClient<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>httpPost<span style="color:#f92672">)</span>
+
+<span style="color:#75715e">/*******************************************************************************
+</span><span style="color:#75715e"> * 获取考勤表单
+</span><span style="color:#75715e"> */</span>
+httpGet <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HttpGet<span style="color:#f92672">(</span>URL_ATTENDANCE_DATA<span style="color:#f92672">)</span>
+httpResponse <span style="color:#f92672">=</span> httpClient<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>httpGet<span style="color:#f92672">)</span>
+String attendanceDataHtml <span style="color:#f92672">=</span> EntityUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">(</span>httpResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">())</span>
+
+inputs <span style="color:#f92672">=</span> Jsoup<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>attendanceDataHtml<span style="color:#f92672">).</span><span style="color:#a6e22e">select</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;#form1 input&#34;</span><span style="color:#f92672">)</span>
+
+<span style="color:#75715e">// 查询日期
+</span><span style="color:#75715e"></span>Calendar calendar <span style="color:#f92672">=</span> Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span>
+calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">HOUR_OF_DAY</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">8</span><span style="color:#f92672">)</span>
+calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">MINUTE</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">)</span>
+calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">SECOND</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">)</span>
+calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECOND</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">)</span>
+
+List<span style="color:#f92672">&lt;</span>NameValuePair<span style="color:#f92672">&gt;</span> attendanceDataNameValuePairs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;()</span>
+<span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Element input <span style="color:#f92672">:</span> inputs<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    String name <span style="color:#f92672">=</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">attr</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ASPxRoundPanel1_deStartTime_Raw&#34;</span> <span style="color:#f92672">==</span> name <span style="color:#f92672">||</span> <span style="color:#e6db74">&#34;ASPxRoundPanel1_deEndTime_Raw&#34;</span> <span style="color:#f92672">==</span> name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        attendanceDataNameValuePairs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BasicNameValuePair<span style="color:#f92672">(</span>name<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#f92672">+</span> calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">getTimeInMillis</span><span style="color:#f92672">()))</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        attendanceDataNameValuePairs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BasicNameValuePair<span style="color:#f92672">(</span>name<span style="color:#f92672">,</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">attr</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">)))</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">/*******************************************************************************
+</span><span style="color:#75715e"> * 查询考勤数据
+</span><span style="color:#75715e"> */</span>
+httpPost <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HttpPost<span style="color:#f92672">(</span>URL_ATTENDANCE_DATA<span style="color:#f92672">)</span>
+httpPost<span style="color:#f92672">.</span><span style="color:#a6e22e">setEntity</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> UrlEncodedFormEntity<span style="color:#f92672">(</span>attendanceDataNameValuePairs<span style="color:#f92672">,</span> Charset<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;UTF-8&#34;</span><span style="color:#f92672">)))</span>
+httpResponse <span style="color:#f92672">=</span> httpClient<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>httpPost<span style="color:#f92672">)</span>
+String attendanceData <span style="color:#f92672">=</span> EntityUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">(</span>httpResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">())</span>
+
+<span style="color:#75715e">/*******************************************************************************
+</span><span style="color:#75715e"> * 解析考勤数据
+</span><span style="color:#75715e"> */</span>
+Elements trs <span style="color:#f92672">=</span> Jsoup<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>attendanceData<span style="color:#f92672">).</span><span style="color:#a6e22e">select</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.dxgvTable_Office2010Blue tr.dxgvDataRow_Office2010Blue&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">int</span> hour <span style="color:#f92672">=</span> Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">().</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>Calendar<span style="color:#f92672">.</span><span style="color:#a6e22e">HOUR_OF_DAY</span><span style="color:#f92672">)</span>
+
+<span style="color:#75715e">// 12点之前须有一次打卡记录， 12点之后需要有两次打卡记录
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> <span style="color:#f92672">(!((</span>hour <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">12</span> <span style="color:#f92672">&amp;&amp;</span> trs<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">()</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span> <span style="color:#f92672">||</span> <span style="color:#f92672">(</span>hour <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">12</span> <span style="color:#f92672">&amp;&amp;</span> trs<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">()</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">)))</span> <span style="color:#f92672">{</span>
+    Mail<span style="color:#f92672">.</span><span style="color:#a6e22e">send</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;记得打卡&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;记得打卡: &lt;a href=&#39;$HOST&#39; target=&#39;_balnk&#39;&gt;$HOST&lt;/a&gt;&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;ykb553@163.com&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="发送邮件">发送邮件</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Groovy" data-lang="Groovy"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * groovy -c utf-8 mail/Mail.groovy
+</span><span style="color:#75715e"> */</span>
+<span style="color:#f92672">package</span> mail
+
+<span style="color:#a6e22e">@groovy.lang.Grapes</span><span style="color:#f92672">([</span>
+        <span style="color:#a6e22e">@groovy.lang.Grab</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;org.apache.commons:commons-email:1.4&#39;</span><span style="color:#f92672">)</span>
+<span style="color:#f92672">])</span>
+<span style="color:#f92672">import</span> org.apache.commons.mail.HtmlEmail
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Mail</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Const</span> <span style="color:#f92672">{</span>
+        String SMTP <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;smtp.163.com&#34;</span>
+        String USERNAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;****&#34;</span> <span style="color:#75715e">// 修改成你的邮箱
+</span><span style="color:#75715e"></span>        String PASSWORD <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;****&#34;</span> <span style="color:#75715e">// 修改成你的邮箱密码
+</span><span style="color:#75715e"></span>        String FROM <span style="color:#f92672">=</span> USERNAME
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send</span><span style="color:#f92672">(</span>String subject<span style="color:#f92672">,</span> String contentHtml<span style="color:#f92672">,</span> String<span style="color:#f92672">...</span> to<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        HtmlEmail email <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HtmlEmail<span style="color:#f92672">()</span>
+        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setHostName</span><span style="color:#f92672">(</span>Const<span style="color:#f92672">.</span><span style="color:#a6e22e">SMTP</span><span style="color:#f92672">)</span>
+        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setAuthentication</span><span style="color:#f92672">(</span>Const<span style="color:#f92672">.</span><span style="color:#a6e22e">USERNAME</span><span style="color:#f92672">,</span> Const<span style="color:#f92672">.</span><span style="color:#a6e22e">PASSWORD</span><span style="color:#f92672">)</span>
+        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setCharset</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;UTF-8&#34;</span><span style="color:#f92672">)</span>  <span style="color:#75715e">// 指定编码方式，否则会乱码
+</span><span style="color:#75715e"></span>
+        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setFrom</span><span style="color:#f92672">(</span>Const<span style="color:#f92672">.</span><span style="color:#a6e22e">FROM</span><span style="color:#f92672">)</span>
+        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setSubject</span><span style="color:#f92672">(</span>subject<span style="color:#f92672">)</span>     <span style="color:#75715e">// 主题
+</span><span style="color:#75715e"></span>        email<span style="color:#f92672">.</span><span style="color:#a6e22e">setHtmlMsg</span><span style="color:#f92672">(</span>contentHtml<span style="color:#f92672">)</span> <span style="color:#75715e">// 内容
+</span><span style="color:#75715e"></span>        email<span style="color:#f92672">.</span><span style="color:#a6e22e">addTo</span><span style="color:#f92672">(</span>to<span style="color:#f92672">)</span>               <span style="color:#75715e">// 发送给谁
+</span><span style="color:#75715e"></span>
+        println email<span style="color:#f92672">.</span><span style="color:#a6e22e">send</span><span style="color:#f92672">()</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// mail.Mail.send(&#34;测试主题&#34;, &#34;测试内容&#34;, &#34;blog@kail.xyz&#34;)
+</span><span style="color:#75715e"></span>
+</code></pre></div><h2 id="运行">运行</h2>
+<p>执行 <code>groovy -c utf-8 monitor/KaoQin.groovy</code>, 定时执行的话使用 Linux 的 <code>crontab</code>。</p>
+<p>这里使用的是 <code>Grape</code> 作为的依赖管理，第一次运行 Groovy自带了一个嵌入式的jar依赖管理器，会下载指定的依赖到 <code>~/.groovy/grapes</code> 目录下</p>
+<h2 id="read-more">Read More</h2>
+<ul>
+<li>
+  <a href="http://www.groovy-lang.org/grape.html">The Grape dependency manager</a></li>
+<li>
+  <a href="http://blog.csdn.net/u011054333/article/details/60478730">Grape 依赖管理器</a></li>
+<li>
+  <a href="http://www.oschina.net/translate/commons-email-userguide">Commons-Email 收发邮件</a></li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex justify-between">
+
+
+
+
+
+  <div>
+    <a class="flex align-center" href="https://github.com/hello-world-example/Groovy/edit/master/HuGo/content/docs/Action/Monitor-KaoQin-Email.md" target="_blank" rel="noopener">
+      <img src="/Groovy/svg/edit.svg" class="book-icon" alt="Edit" />
+      <span>Edit this page</span>
+    </a>
+  </div>
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#监控与邮件示例">监控与邮件示例</a>
+      <ul>
+        <li><a href="#获取考勤信息">获取考勤信息</a></li>
+        <li><a href="#发送邮件">发送邮件</a></li>
+        <li><a href="#运行">运行</a></li>
+        <li><a href="#read-more">Read More</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

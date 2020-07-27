@@ -21,9 +21,18 @@
 
         <java.version>8</java.version>
         <encoding>UTF-8</encoding>
+
+        <groovy.version>3.0.4</groovy.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -32,33 +41,24 @@
         </dependency>
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+<!--            <dependency>-->
+<!--                <groupId>org.codehaus.groovy</groupId>-->
+<!--                <artifactId>groovy-all</artifactId>-->
+<!--                <version>3.0.5</version>-->
+<!--                <scope>import</scope>-->
+<!--                <type>pom</type>-->
+<!--            </dependency>-->
+        </dependencies>
+    </dependencyManagement>
+
     <!-- 默认行为 -->
     <build>
 
         <plugins>
 
-            <!-- 项目编码 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>${maven.compiler.encoding}</encoding>
-                </configuration>
-            </plugin>
 
-            <!-- war 包的行为 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.3</version>
-                <configuration>
-                    <!-- war 没有 web.xml 编译通过 -->
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
 
         </plugins>
     </build>
@@ -70,12 +70,6 @@
         </repository>
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>aliyun</id>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </pluginRepository>
-    </pluginRepositories>
 
 
 </project>

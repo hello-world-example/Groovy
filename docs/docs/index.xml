@@ -9,5 +9,39 @@
 	<atom:link href="https://hello-world-example.github.io/Groovy/docs/index.xml" rel="self" type="application/rss+xml" />
     
     
+    <item>
+      <title></title>
+      <link>https://hello-world-example.github.io/Groovy/docs/Action/Java-Integrate-Groovy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://hello-world-example.github.io/Groovy/docs/Action/Java-Integrate-Groovy/</guid>
+      <description>Java 整合 Groovy 准备 首先在项目中添加 Maven 依赖
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.codehaus.groovy&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;groovy-all&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.0.4&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; Eval groovy.util.Eval 类是在运行时动态地执行Groovy脚本的最简单的方法。可以通过调用me方法来完成:
+// 输出 99 System.out.println(Eval.me(&amp;#34;33 * 3 &amp;#34;)); // 输出 KAIL == &amp;#34;kail&amp;#34;.toUpperCase() System.out.println(Eval.me(&amp;#34;\&amp;#34;kail\&amp;#34;.toUpperCase()&amp;#34;)); // 输出 Hello World == String.format(&amp;#34;Hello %s&amp;#34;,&amp;#34;World&amp;#34;) System.out.println(Eval.me(&amp;#34;String.format(\&amp;#34;Hello %s\&amp;#34;,\&amp;#34;World\&amp;#34;)&amp;#34;)); GroovyShell GroovyShell shell = new GroovyShell(); // 1. 求值，输出2 ， 是 Eval 的内部实现 System.out.println(shell.evaluate(&amp;#34;\&amp;#34;Kail\&amp;#34;.indexOf(&amp;#39;i&amp;#39;)&amp;#34;)); // 2. 输出 6 Script script = shell.parse(&amp;#34;3 * (5 - 3)&amp;#34;); System.out.println(script.run()); // 3. 绑定参数 // groovy printlv 输出 2017-05-30 // java System.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://hello-world-example.github.io/Groovy/docs/Action/Monitor-KaoQin-Email/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://hello-world-example.github.io/Groovy/docs/Action/Monitor-KaoQin-Email/</guid>
+      <description>监控与邮件示例 本文虽然是使用 Groovy，但是基本上没有用到 Groovy 的任何语法特性，写的过程基本上是先用 Java 写好，然后全部拷贝到 monitor.KaoQin.groovy 文件中。
+涉及到：
+ Grapes 依赖 邮件发送 包管理  获取考勤信息 以下是基本逻辑。
+ 访问登录页，获取登陆表单 登陆，同一个 HttpClient 会保存 Session 信息 访问打卡记录页面，获取表单信息，构造表单参数 获取当天打卡记录 解析打卡信息，判断是否打卡 如果没有打卡，发送邮件提醒  该程序并没有通用性，只针对特定的考勤系统
+package monitor // 添加依赖 @groovy.lang.Grapes([ @groovy.lang.Grab(&amp;#39;org.jsoup:jsoup:1.10.2&amp;#39;), @groovy.lang.Grab(&amp;#39;org.apache.httpcomponents:httpclient:4.5.3&amp;#39;), @groovy.lang.Grab(&amp;#39;org.apache.httpcomponents:httpmime:4.5.3&amp;#39;) ]) import mail.Mail import org.apache.http.NameValuePair import org.apache.http.client.entity.UrlEncodedFormEntity import org.apache.http.client.methods.CloseableHttpResponse import org.apache.http.client.methods.HttpGet import org.apache.http.client.methods.HttpPost import org.apache.http.impl.client.CloseableHttpClient import org.apache.http.impl.client.HttpClients import org.apache.http.message.BasicNameValuePair import org.apache.http.util.EntityUtils import org.jsoup.Jsoup import org.jsoup.nodes.Element import org.jsoup.select.Elements import java.nio.charset.Charset /** * 考勤监控， 每周一到到周五，定时检查当天是否有打卡记录 * 25 9 * * MON-FRI * 35 18 * * MON-FRI * * groovy -c utf-8 monitor/KaoQin.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://hello-world-example.github.io/Groovy/docs/Quick-Start/Install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://hello-world-example.github.io/Groovy/docs/Quick-Start/Install/</guid>
+      <description>安装 Maven 添加 Maven 依赖，直接开始 Groovy 编程，@see Java 整合 Groovy
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.codehaus.groovy&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;groovy-all&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${groovy.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; Local $ wget https://dl.bintray.com/groovy/maven/apache-groovy-binary-3.0.4.zip $ unzip apache-groovy-binary-3.0.4.zip # 配置环境变量 $ vim /etc/profile export GROOVY_HOME=/Users/kail/java/groovy-3.0.4 export PATH=&amp;#34;$PATH:$GROOVY_HOME/bin&amp;#34; # 查看版本 $ groovy --version Groovy Version: 3.0.4 JVM: 1.8.0_151 Vendor: Oracle Corporation OS: Mac OS X # # groovysh $ groovysh Groovy Shell (3.0.4, JVM: 1.8.0_151) Type &amp;#39;:help&amp;#39; or &amp;#39;:h&amp;#39; for help. ------------------------------------------ groovy:000&amp;gt; :x # 退出 # # 打开 Groovy Swing 交互界面 $ groovyConsole 系统要求  System requirements : http://www.</description>
+    </item>
+    
   </channel>
 </rss>

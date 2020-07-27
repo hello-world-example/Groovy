@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java 整合 Groovy 准备 首先在项目中添加 Maven 依赖
+&lt;dependency&gt; &lt;groupId&gt;org.codehaus.groovy&lt;/groupId&gt; &lt;artifactId&gt;groovy-all&lt;/artifactId&gt; &lt;version&gt;3.0.4&lt;/version&gt; &lt;/dependency&gt; Eval groovy.util.Eval 类是在运行时动态地执行Groovy脚本的最简单的方法。可以通过调用me方法来完成:
+// 输出 99 System.out.println(Eval.me(&#34;33 * 3 &#34;)); // 输出 KAIL == &#34;kail&#34;.toUpperCase() System.out.println(Eval.me(&#34;\&#34;kail\&#34;.toUpperCase()&#34;)); // 输出 Hello World == String.format(&#34;Hello %s&#34;,&#34;World&#34;) System.out.println(Eval.me(&#34;String.format(\&#34;Hello %s\&#34;,\&#34;World\&#34;)&#34;)); GroovyShell GroovyShell shell = new GroovyShell(); // 1. 求值，输出2 ， 是 Eval 的内部实现 System.out.println(shell.evaluate(&#34;\&#34;Kail\&#34;.indexOf(&#39;i&#39;)&#34;)); // 2. 输出 6 Script script = shell.parse(&#34;3 * (5 - 3)&#34;); System.out.println(script.run()); // 3. 绑定参数 // groovy printlv 输出 2017-05-30 // java System."><meta property="og:title" content="" />
+<meta property="og:description" content="Java 整合 Groovy 准备 首先在项目中添加 Maven 依赖
+&lt;dependency&gt; &lt;groupId&gt;org.codehaus.groovy&lt;/groupId&gt; &lt;artifactId&gt;groovy-all&lt;/artifactId&gt; &lt;version&gt;3.0.4&lt;/version&gt; &lt;/dependency&gt; Eval groovy.util.Eval 类是在运行时动态地执行Groovy脚本的最简单的方法。可以通过调用me方法来完成:
+// 输出 99 System.out.println(Eval.me(&#34;33 * 3 &#34;)); // 输出 KAIL == &#34;kail&#34;.toUpperCase() System.out.println(Eval.me(&#34;\&#34;kail\&#34;.toUpperCase()&#34;)); // 输出 Hello World == String.format(&#34;Hello %s&#34;,&#34;World&#34;) System.out.println(Eval.me(&#34;String.format(\&#34;Hello %s\&#34;,\&#34;World\&#34;)&#34;)); GroovyShell GroovyShell shell = new GroovyShell(); // 1. 求值，输出2 ， 是 Eval 的内部实现 System.out.println(shell.evaluate(&#34;\&#34;Kail\&#34;.indexOf(&#39;i&#39;)&#34;)); // 2. 输出 6 Script script = shell.parse(&#34;3 * (5 - 3)&#34;); System.out.println(script.run()); // 3. 绑定参数 // groovy printlv 输出 2017-05-30 // java System." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hello-world-example.github.io/Groovy/docs/Action/Java-Integrate-Groovy/" />
+
+<title>Java Integrate Groovy | Groovy</title>
+<link rel="icon" href="/Groovy/favicon.png" type="image/x-icon">
+
+
+<link rel="stylesheet" href="/Groovy/book.min.d436f463c9471cfab26a8b71cd2f50b6abf5225806391453da4ca111d1834fef.css" integrity="sha256-1Db0Y8lHHPqyaotxzS9Qtqv1IlgGORRT2kyhEdGDT&#43;8=">
+
+
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body>
+  <input type="checkbox" class="hidden" id="menu-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/Groovy"><span>Groovy</span>
+  </a>
+</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+  <ul>
+<li><strong>Quick Start</strong>
+<ul>
+<li>
+  <a href="/Groovy/docs/Quick-Start/Install/">Install</a></li>
+</ul>
+</li>
+<li><strong>Action</strong>
+<ul>
+<li>
+  <a href="/Groovy/docs/Action/Java-Integrate-Groovy/"class=active>Java 整合 Groovy</a></li>
+<li>
+  <a href="/Groovy/docs/Action/Monitor-KaoQin-Email/">监控与邮件示例</a></li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Groovy/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>Java Integrate Groovy</strong>
+
+  <label for="toc-control">
+    <img src="/Groovy/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+  </label>
+</div>
+
+
+  
+    <input type="checkbox" class="hidden" id="toc-control" />
+    <aside class="hidden clearfix">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#java-整合-groovy">Java 整合 Groovy</a>
+      <ul>
+        <li><a href="#准备">准备</a></li>
+        <li><a href="#eval">Eval</a></li>
+        <li><a href="#groovyshell">GroovyShell</a>
+          <ul>
+            <li><a href="#需要注意的事">需要注意的事</a></li>
+          </ul>
+        </li>
+        <li><a href="#groovyclassloader">GroovyClassLoader</a>
+          <ul>
+            <li><a href="#缓存相关">缓存相关</a></li>
+          </ul>
+        </li>
+        <li><a href="#groovyscriptengine">GroovyScriptEngine</a></li>
+        <li><a href="#read-more">Read More</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+    </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="java-整合-groovy">Java 整合 Groovy</h1>
+<h2 id="准备">准备</h2>
+<p>首先在项目中添加 Maven 依赖</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>org.codehaus.groovy<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>groovy-all<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>3.0.4<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+</code></pre></div><h2 id="eval">Eval</h2>
+<p><code>groovy.util.Eval</code> 类是在运行时动态地执行Groovy脚本的最简单的方法。可以通过调用me方法来完成:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Java" data-lang="Java"><span style="color:#75715e">// 输出 99
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Eval<span style="color:#f92672">.</span><span style="color:#a6e22e">me</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;33 * 3 &#34;</span><span style="color:#f92672">));</span>
+<span style="color:#75715e">// 输出 KAIL  == &#34;kail&#34;.toUpperCase()
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Eval<span style="color:#f92672">.</span><span style="color:#a6e22e">me</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\&#34;kail\&#34;.toUpperCase()&#34;</span><span style="color:#f92672">));</span>
+<span style="color:#75715e">// 输出 Hello World  == String.format(&#34;Hello %s&#34;,&#34;World&#34;)
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Eval<span style="color:#f92672">.</span><span style="color:#a6e22e">me</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;String.format(\&#34;Hello %s\&#34;,\&#34;World\&#34;)&#34;</span><span style="color:#f92672">));</span>
+</code></pre></div><h2 id="groovyshell">GroovyShell</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">GroovyShell shell <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GroovyShell<span style="color:#f92672">();</span>
+
+<span style="color:#75715e">// 1. 求值，输出2 ， 是 Eval 的内部实现
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>shell<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\&#34;Kail\&#34;.indexOf(&#39;i&#39;)&#34;</span><span style="color:#f92672">));</span>
+
+<span style="color:#75715e">// 2. 输出 6
+</span><span style="color:#75715e"></span>Script script <span style="color:#f92672">=</span> shell<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;3 * (5 - 3)&#34;</span><span style="color:#f92672">);</span>
+System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>script<span style="color:#f92672">.</span><span style="color:#a6e22e">run</span><span style="color:#f92672">());</span>
+
+<span style="color:#75715e">// 3. 绑定参数
+</span><span style="color:#75715e">// groovy printlv 输出 2017-05-30  
+</span><span style="color:#75715e">// java System.out.println 输出  name: Kail, data: Tue May 30 16:03:24 CST 2017 !
+</span><span style="color:#75715e"></span>shell<span style="color:#f92672">.</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Kail&#34;</span><span style="color:#f92672">);</span>
+shell<span style="color:#f92672">.</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> Date<span style="color:#f92672">());</span>
+System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>shell<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;println new java.text.SimpleDateFormat(&#39;yyyy-MM-dd&#39;).format(date); \&#34;name: $name, data: $date !\&#34; &#34;</span><span style="color:#f92672">));</span>
+
+<span style="color:#75715e">// 4. 执行 .groovy 文件，修改文件不会生效
+</span><span style="color:#75715e"></span>Script script1 <span style="color:#f92672">=</span> shell<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/Users/kail/_test/test.groovy&#34;</span><span style="color:#f92672">));</span>
+<span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 20<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+    script1<span style="color:#f92672">.</span><span style="color:#a6e22e">run</span><span style="color:#f92672">();</span>
+    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>1000<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 5. 执行 .groovy 文件，修改文件后立马会生效
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 20<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+    shell<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/Users/kail/_test/test.groovy&#34;</span><span style="color:#f92672">));</span>
+    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>1000<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>test.groovy 内容如下，只是简单地输出一句话</p>
+<pre><code class="language-grovvy" data-lang="grovvy">println 12345
+</code></pre><h3 id="需要注意的事">需要注意的事</h3>
+<p>拓展阅读中（<em>在Java里整合Groovy脚本的一个陷阱</em>）提到了集成Groovy脚本可能会出现<code>内存溢出</code>的问题，这个问题在高版本中貌似已经被修复了，本文在测试的时候并没有发现。</p>
+<p>虽然没有显式的报错，但是GC还是很厉害，最直观的感受就是运行了一段时间，控制台输出会卡顿一会。</p>
+<p>这里建议一次编译（<code>shell.parse(file)</code>）多次使用(或者使用 <code>GroovyScriptEngine</code>)，本地缓存编译结果，定时扫描 <code>.groovy</code> 文件是否有变动，有变动再重新编译。</p>
+<h2 id="groovyclassloader">GroovyClassLoader</h2>
+<p>GroovyShell 是一个执行Groovy脚本的简单工具。在内部它使用了 <code>groovy.lang.GroovyClassLoader</code>，它是编译和在运行时加载类的核心。先上一个示例</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">GroovyClassLoader gcl <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GroovyClassLoader<span style="color:#f92672">();</span>
+Class<span style="color:#f92672">&lt;?&gt;</span> fooClass <span style="color:#f92672">=</span> gcl<span style="color:#f92672">.</span><span style="color:#a6e22e">parseClass</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;class Foo { void doIt() { println &#39;ok&#39; } }&#34;</span><span style="color:#f92672">);</span>
+Object object <span style="color:#f92672">=</span> fooClass<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+
+<span style="color:#75715e">// 输出 Foo
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+<span style="color:#75715e">// 打印 ok
+</span><span style="color:#75715e"></span>fooClass<span style="color:#f92672">.</span><span style="color:#a6e22e">getMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;doIt&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>object<span style="color:#f92672">);</span>
+</code></pre></div><h3 id="缓存相关">缓存相关</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">GroovyClassLoader gcl <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GroovyClassLoader<span style="color:#f92672">();</span>
+Class<span style="color:#f92672">&lt;?&gt;</span> fooClass1 <span style="color:#f92672">=</span> gcl<span style="color:#f92672">.</span><span style="color:#a6e22e">parseClass</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;class Foo { void doIt() { println &#39;ok&#39; } }&#34;</span><span style="color:#f92672">);</span>
+Class<span style="color:#f92672">&lt;?&gt;</span> fooClass2 <span style="color:#f92672">=</span> gcl<span style="color:#f92672">.</span><span style="color:#a6e22e">parseClass</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;class Foo { void doIt() { println &#39;ok&#39; } }&#34;</span><span style="color:#f92672">);</span>
+System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass1<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span> <span style="color:#75715e">// 输出 Foo
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass2<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span> <span style="color:#75715e">// 输出 Foo
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass1 <span style="color:#f92672">==</span> fooClass2<span style="color:#f92672">);</span> <span style="color:#75715e">// 输出false
+</span><span style="color:#75715e"></span>
+String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/Users/kail/_test/test.groovy&#34;</span><span style="color:#f92672">;</span>
+Class<span style="color:#f92672">&lt;?&gt;</span> fooClass3 <span style="color:#f92672">=</span> gcl<span style="color:#f92672">.</span><span style="color:#a6e22e">parseClass</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
+Class<span style="color:#f92672">&lt;?&gt;</span> fooClass4 <span style="color:#f92672">=</span> gcl<span style="color:#f92672">.</span><span style="color:#a6e22e">parseClass</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
+
+System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass3<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span> <span style="color:#75715e">// 输出 test
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass4<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span> <span style="color:#75715e">// 输出 test
+</span><span style="color:#75715e"></span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>fooClass3 <span style="color:#f92672">==</span> fooClass4<span style="color:#f92672">);</span> <span style="color:#75715e">// 输出 true
+</span></code></pre></div><p>从上面例子可以看出，从字符串解析类和从文件解析是不一样的。</p>
+<p><strong>使用文件作为输入，GroovyClassLoader能够缓存生成的类文件，避免在运行时为相同的 Groovy来源 创建多个类。</strong></p>
+<h2 id="groovyscriptengine">GroovyScriptEngine</h2>
+<p><code>GroovyScriptEngine</code> 与 <code>GroovyShell</code> 类似，其最大的不同在于 <code>GroovyScriptEngine</code> 会监控文件的变化，例如下面的例子，修改 test.groovy 保存之后会实时生效。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">GroovyScriptEngine scriptEngine <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GroovyScriptEngine<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/Users/kail/_test/&#34;</span><span style="color:#f92672">);</span>
+
+<span style="color:#66d9ef">for</span> <span style="color:#f92672">(;</span> <span style="color:#f92672">;</span> <span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    scriptEngine<span style="color:#f92672">.</span><span style="color:#a6e22e">run</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;test.groovy&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>1000<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="read-more">Read More</h2>
+<ul>
+<li>
+  <a href="http://docs.groovy-lang.org/docs/latest/html/documentation/#_integrating_groovy_in_a_java_application">Integrating Groovy in a Java application</a></li>
+<li>
+  <a href="http://rednaxelafx.iteye.com/blog/620155">在 Java 里整合 Groovy 脚本的一个陷阱</a></li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex justify-between">
+
+
+
+
+
+  <div>
+    <a class="flex align-center" href="https://github.com/hello-world-example/Groovy/edit/master/HuGo/content/docs/Action/Java-Integrate-Groovy.md" target="_blank" rel="noopener">
+      <img src="/Groovy/svg/edit.svg" class="book-icon" alt="Edit" />
+      <span>Edit this page</span>
+    </a>
+  </div>
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#java-整合-groovy">Java 整合 Groovy</a>
+      <ul>
+        <li><a href="#准备">准备</a></li>
+        <li><a href="#eval">Eval</a></li>
+        <li><a href="#groovyshell">GroovyShell</a>
+          <ul>
+            <li><a href="#需要注意的事">需要注意的事</a></li>
+          </ul>
+        </li>
+        <li><a href="#groovyclassloader">GroovyClassLoader</a>
+          <ul>
+            <li><a href="#缓存相关">缓存相关</a></li>
+          </ul>
+        </li>
+        <li><a href="#groovyscriptengine">GroovyScriptEngine</a></li>
+        <li><a href="#read-more">Read More</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
