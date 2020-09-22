@@ -50,6 +50,8 @@ $ groovyConsole
 ## 系统要求
 
 > System requirements : http://www.groovy-lang.org/download.html#requirements
+>
+> InvokeDynamic (indy) support: https://docs.groovy-lang.org/latest/html/documentation/invokedynamic-support.html
 
 | Groovy            | JVM Required (non-indy) | JVM Required (indy) * |
 | :---------------- | :---------------------- | :-------------------- |

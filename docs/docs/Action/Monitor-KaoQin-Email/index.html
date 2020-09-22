@@ -16,7 +16,7 @@ package monitor // 添加依赖 @groovy.lang.Grapes([ @groovy.lang.Grab(&#39;org
 package monitor // 添加依赖 @groovy.lang.Grapes([ @groovy.lang.Grab(&#39;org.jsoup:jsoup:1.10.2&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpclient:4.5.3&#39;), @groovy.lang.Grab(&#39;org.apache.httpcomponents:httpmime:4.5.3&#39;) ]) import mail.Mail import org.apache.http.NameValuePair import org.apache.http.client.entity.UrlEncodedFormEntity import org.apache.http.client.methods.CloseableHttpResponse import org.apache.http.client.methods.HttpGet import org.apache.http.client.methods.HttpPost import org.apache.http.impl.client.CloseableHttpClient import org.apache.http.impl.client.HttpClients import org.apache.http.message.BasicNameValuePair import org.apache.http.util.EntityUtils import org.jsoup.Jsoup import org.jsoup.nodes.Element import org.jsoup.select.Elements import java.nio.charset.Charset /** * 考勤监控， 每周一到到周五，定时检查当天是否有打卡记录 * 25 9 * * MON-FRI * 35 18 * * MON-FRI * * groovy -c utf-8 monitor/KaoQin." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://hello-world-example.github.io/Groovy/docs/Action/Monitor-KaoQin-Email/" />
-
+<meta property="article:modified_time" content="2020-07-27T13:59:24+08:00" />
 <title>Monitor Kao Qin Email | Groovy</title>
 <link rel="icon" href="/Groovy/favicon.png" type="image/x-icon">
 
@@ -325,6 +325,14 @@ Elements trs <span style="color:#f92672">=</span> Jsoup<span style="color:#f9267
   <div class="flex justify-between">
 
 
+
+  <div>
+    
+    <a class="flex align-center" href="https://github.com/hello-world-example/Groovy/commit/4eb3a36e485bca91a157d14c9cb4a24a056792a4" title='Last modified by kaibin.yang | Jul 27, 2020' target="_blank" rel="noopener">
+      <img src="/Groovy/svg/calendar.svg" class="book-icon" alt="Calendar" />
+      <span>Jul 27, 2020</span>
+    </a>
+  </div>
 
 
 
